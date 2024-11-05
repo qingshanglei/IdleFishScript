@@ -135,6 +135,11 @@ desc("返回").findOnce();
 
 //#endregion
 
+// // 导入Java包
+// 
+// //删除文件
+// log("完成")
+
 
 
 //#region   返回
@@ -195,27 +200,11 @@ desc("返回").findOnce();
 
 
 // 是否打开了支付宝
+console.log(2311111424);
+auto();
 
 
 
-// 滑动屏幕向下滑动并延迟n秒
-// getssss()
-// function getssss() {
-//     let longTime = 0;
-//     while (1) {
-
-//         toastLog("向下滚动屏幕，浏览中...")
-//         // 20秒后退出循环
-//         if (getSec(20) === 20) {
-//             console.log("已滑动30" + longTime + "秒,点击返回")
-
-//             log("返回闲鱼列表")
-//             sleep(800)
-//             return randomClick(desc("返回").findOne())
-//         }
-//     }
-// }
-console.log("234248888888888888888888");
 
 
 // clickProduct()
@@ -239,16 +228,8 @@ function clickProduct() {
     // // 商品图片点击
     randomClick(productItemImg)
     sleep(500)
-
 }
 
-
-// let breakBtn = id("com.taobao.idlefish:id/weex_render_view").findOne()
-//     .child(2).child(0).child(0).child(0)
-// if (breakBtn) {
-//     randomClick(breakBtn);
-//     sleep(400)
-// }
 
 // 指定区域随机点击  
 function randomClick(i) {

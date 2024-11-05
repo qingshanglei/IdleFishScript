@@ -11,7 +11,7 @@
 // // }
 
 
-// // // 指定区域随机点击  
+// // // 指定区域随机点击   
 // // function randomClick(i) {
 // //     let link = i.bounds();
 // //     let randX = link.left + Math.random() * (link.right - link.left);
@@ -76,7 +76,53 @@
 // // }
 
 //#endregion
-goAntWoods()
+//#region  点击报 Can't find method com.stardust.automator.UiObject.click(number)
+toastLog("3")
+// let breakBtn = idContains("scrollContainer").findOne().child(2).child(1).child(0).child(0)
+
+
+
+// breakBtn.click()
+
+// randomClick(breakBtn)
+//#endregion  
+
+// sgetss()
+function sgetss() {
+    if (text("全新好物").findOne()) {
+        while (1) {
+            toastLog(2324)
+            sleep(800)
+            // 20秒后退出循环 
+            if (textContains("倒计时").findOne()) {
+                // 向下滑动
+                swipeScreenDown()
+            } else {
+                console.log("已滑动30秒")
+                sleep(700)
+                log("点击返回闲鱼列表")
+                sleep(800)
+
+                let breakBtn =
+                    textContains("全新好物").findOne().child(0).child(0).click(1).child(0).child(0)
+                if (breakBtn) {
+                    randomClick(breakBtn)
+                    //  返回
+                    log("返回闲鱼列表")
+
+                    log("返回闲鱼列表")
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+console.log("234248888888888888888888");
+
+
+
 
 // 去淘宝双11赢红包
 function goAntWoods() {
@@ -183,7 +229,7 @@ function randomClick(i) {
 
 // 倒计时函数
 function getSec(seconds) {
-    let remainingSeconds = seconds ;
+    let remainingSeconds = seconds;
     let sec = threads.start(function () {
         while (remainingSeconds > 0) {
             toastLog("倒计时： " + remainingSeconds + " 秒");

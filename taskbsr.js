@@ -1,38 +1,42 @@
 
 
 
-
+// 闲鱼日常签到任务
 
 toastLog(234)
 
 function main() {
-
+    toastLog("进入个人中心")
     let meClick = text("我的").findOne().parent();
-    randomClick(meClick)
-}
 
-dayTask()
+    if (meClick) {
+        let flag = randomClick(meClick)
+        if (flag) {
+            sleep(2000)
+            toastLog("已进入个人中心")
+            toastLog(600)
+            toastLog("开始进行每日任务")
+            return dayTask()
+        }
+    }
+}
 
 
 // 获取经验值   
 function dayTask() {
 
-    toastLog("获取经验值中")
+    toastLog("获取每日经验值任务")
     experience();
 
 
-    toastLog("获取经验值中")
+    toastLog("获取曝光任务")
+    sleep(500)
+    toastLog("曝光任务进行中。。。")
     let daySign = descEndsWith('\n每天免费加曝光').visibleToUser().findOne();
     randomClick(daySign);
     while (1) {
-        toastLog("领取酬金中")
-        // 领取酬金
-        let money = text("领取酬金").findOne();
-        if (money) {
-            log("已领取酬金")
-            randomClick(money);
-            sleep(2000)
-        }
+        // 领取酬金-子线程
+        getReward()
 
         //  关闭扔骰子弹窗-子线程
         closeDiceWin()
@@ -41,7 +45,7 @@ function dayTask() {
         getDice()
 
         // 赚骰子
-        geTEarn()
+        7()
 
         break;
     }
@@ -49,29 +53,60 @@ function dayTask() {
 
 // 获取经验值
 function experience() {
+    toastLog("获取经验值中")
     let getExperience = desc("今日500经验值待领取，来加速升级吧\n500\n经验值").findOnce();
-    if (getExperience) {
-        randomClick(getExperience);
-        sleep(2000)
+    while (1) {
+        if (getExperience) {
+            randomClick(getExperience);
+            sleep(2000)
 
-        // 点击返回按钮
-        let breakFlag = idContains("PageMain").findOnce()
-            .child(0).child(2).child(0).child(1).child(0).child(0);
-        if (randomClick(breakFlag)) {
-            return toastLog("获取经验值成功")
+            // 点击返回按钮
+            let breakFlag = idContains("PageMain").findOnce()
+                .child(0).child(2).child(0).child(1).child(0).child(0);
+            if (breakFlag) {
+                randomClick(breakFlag)
+                toastLog("【经验值】任务已完成")
+                sleep(600)
+                toastLog("进入下一个任务")
+                break
+            }
+        } else {
+            toastLog("【经验值】任务已完成")
+            sleep(600)
+            toastLog("进入下一个任务")
+            sleep(2000)
+            break
         }
     }
 }
 
 
-// 扔骰子寻宝
+// 扔骰子寻宝-赚闲鱼币
 function getDice() {
-    toastLog("扔骰子寻宝")
-    let son = className("android.view.View").textContains("×").findOne();
-    if (son) {
-        randomClick(son);
-        sleep(900)
-        return;
+    while (1) {
+        sleep(3000)
+        toastLog("扔骰子寻宝中")
+        // .findOne()
+        let son = id("mapDiceBtn").findOne();
+        if (son.child(1).textContains("×")) {
+            toastLog("扔骰子寻宝中...")
+            randomClick(son);
+            sleep(900)
+
+            if (son.child(1).textContains("赚")) {
+                toastLog("【扔骰子寻宝】任务已完成")
+                sleep(2000)
+                toastLog("进入下一个任务")
+                sleep(2000)
+                randomClick(son);
+
+                // 赚骰子
+                geTEarn()
+
+            }
+        }
+
+
     }
 }
 
@@ -79,25 +114,39 @@ function getDice() {
 //  关闭扔骰子弹窗-子线程
 function closeDiceWin() {
     threads.start(function () {
-        while (true) {
-            // 扔骰子弹窗
-            let sonDice = className("android.view.View").textContains("骰子×").depth("14").findOne()//.next();
-            if (sonDice) {
-                sleep(600)
-                toastLog("关闭扔骰子弹窗")
-                let cloneDice = className("android.view.View").textContains("骰子×").depth("14").findOne().next();
-                randomClick(cloneDice)
-                toastLog(cloneDice)
-                break;
-            }
+        // while (true) {
+        // 扔骰子弹窗
+        let sonDice = className("android.view.View").textContains("骰子×").depth("14").findOne()//.next();
+        if (sonDice) {
+            sleep(600)
+            toastLog("关闭扔骰子弹窗")
+            let cloneDice = className("android.view.View").textContains("骰子×").depth("14").findOne().next();
+            randomClick(cloneDice)
+            toastLog(cloneDice)
+            return sleep(2000)
+            // break;
+            // }
         }
     })
 }
 
+// 领取酬金中
+function getReward() {
+    toastLog("领取酬金中")
+    threads.start(function () {
+        let money = text("领取酬金").findOne();
+        if (money) {
+            log("已领取酬金")
+            randomClick(money);
+            return sleep(2000)
+        }
+    })
+
+}
 
 
 // 赚骰子
-// geTEarn()
+geTEarn()
 
 // 赚骰子
 function geTEarn() {
@@ -114,11 +163,14 @@ function geTEarn() {
 
         toastLog("进入-赚骰子页面")
 
-        // 搜一搜推荐商品
+        // 每日签到  ===》已完成
+        // getSignOne();
+
+        // 搜一搜推荐商品  ===》已完成
         // getTrade()
 
-        // 点击指定频道好物  =====》 待完善-商品目录Auto遍历不出来
-        goAssignTrade()
+        // 点击指定频道好物  =====》 待完善-商品目录Auto遍历不出来 ----第一次条，浏览完点击按钮有点问题
+        // goAssignTrade()
 
         // 去浏览全新好物
         // goBrowse()
@@ -137,114 +189,142 @@ function geTEarn() {
         // 好物夺宝试试手气   =====》已完成-不用了，浪费鱼币
         // goBig()
 
-        // 去蚂蚁庄园逛一逛   =====》待完善
-        // goAntManor()
+        // 去蚂蚁庄园逛一逛   =====》  已完成
+        goAntManor()
 
         // 去支付宝农场领水果   
         // goApple()
 
         // 去蚂蚁森林逛一逛   =====》 待测试
-        // goAntWoods()
+        goAntWoods()
+
+        // 去快手极速版领红包      ===》 不做了
         // goQuikEpedite()
 
         //  倒计时30s获得1个骰子 - 只获取第一个
         // getCountDown()
 
     } else {
-        toastLog("没有签到赚骰子")
+        toastLog("没有进入签到赚骰子，已退出")
         return;
     }
 
-
-    // 倒计时30s获得1个骰子   30s-30m-1h
-    function getCountDown() {
-        toastLog("倒计时30s获得1个骰子")
-        sleep(3000)
-        //  通过祖父组件获取子主间信息
-        let getFather = idContains("taskWrap").findOne(3000).child(4).child(0)
-        // 获取当前列序号   
-        let getPresentVal = getFatherOrSon("倒计时30s获得1个骰子");
-        // 获取 去完成信息
-        goLookTrade = getFather.child(getPresentVal + 5);
-
-        if (goLookTrade.text() == "领取奖励") {
-            goLookTrade.click()
-            console.log("点击领取咸鱼币")
-            return sleep(4000)
-        } else if (goLookTrade.text() == "已完成") {
-            sleep(500)
-            console.info("【倒计时30s获得1个骰子】任务已完成")
-            return sleep(2000)
+    // 闲鱼币签到    =====》已完成
+    function getSignOne() {
+        let signOne = text("签到").findOne()
+        if (signOne) {
+            toastLog("签到中")
+            randomClick(signOne)
+            sleep(3000)
+            return toastLog("签到任务已完成")
         }
     }
 
-    // 搜一搜推荐商品              =====》
+    // 倒计时30s获得1个骰子   30s-30m-1h  =====》已完成
+    function getCountDown() {
+        while (1) {
+            toastLog("倒计时30s获得1个骰子")
+            sleep(3000)
+            //  通过祖父组件获取子主间信息
+            let getFather = idContains("taskWrap").findOne(3000).child(4).child(0)
+            // 获取当前列序号   
+            let getPresentVal = getFatherOrSon("倒计时30s获得1个骰子");
+            // 获取 去完成信息
+            goLookTrade = getFather.child(getPresentVal + 3);
+
+            if (goLookTrade.text() == "领取奖励") {
+                toastLog("点击领取咸鱼币")
+                randomClick(goLookTrade)
+                toastLog("【倒计时30s获得1个骰子】任务已完成")
+                return sleep(4000)
+            } else if (goLookTrade.text() == "已完成") {
+                sleep(500)
+                console.info("【倒计时30s获得1个骰子】任务已完成")
+                sleep(2000)
+                break
+            }
+        }
+    }
+
+    // 搜一搜推荐商品              =====》已完成
     function getTrade() {
         toastLog("进入-搜一搜推荐商品")
-        sleep(900)
-        //  通过祖父组件获取子主间信息
-        let getFather = idContains("taskWrap").findOne(3000).child(4).child(0)
-        // 获取当前列序号
-        let getTradeVal = getFatherOrSon("搜一搜推荐商品");
-        // 获取 去完成信息
-        goLookTrade = getFather.child(getTradeVal + 7);
-        sleep(900)
+        while (1) {
+            sleep(900)
+            //  通过祖父组件获取子主间信息
+            let getFather = idContains("taskWrap").findOne(3000).child(4).child(0)
+            // 获取当前列序号
+            let getTradeVal = getFatherOrSon("搜一搜推荐商品");
+            // 获取 去完成信息
+            goLookTrade = getFather.child(getTradeVal + 7);
+            sleep(900)
 
-        if (goLookTrade.text() == "去完成") {
-            // 点击去完成按钮
-            randomClick(goLookTrade);
-            sleep(800)
-            console.log("进入-视频页面，搜索中...")
+            if (goLookTrade.text() == "去完成") {
+                // 点击去完成按钮
+                randomClick(goLookTrade);
+                sleep(800)
+                toastLog("进入-视频页面，搜索中...")
 
-            sleep(1000)
-            console.log("视频页面-输入搜索框内容");
-            let setInpText = "EasyClick破解版";
-            setText(setInpText);
-            sleep(1000)
+                sleep(1000)
+                toastLog("视频页面-输入搜索框内容");
+                let setInpText = "EasyClick破解版";
+                setText(setInpText);
+                sleep(1000)
 
-            console.log("点击搜索按钮");
-            let flag = text("搜索").findOne().click()
+                toastLog("点击搜索按钮");
+                let flag = text("搜索").findOne().click()
 
-            if (flag) {
-                if (text("滑动浏览得奖励").findOne()) {
-                    let sec = getSec(20);
-                    while (1) {
-                        sleep(800)
-                        // 20秒后退出循环
-                        if (sec === 20) {
-                            console.log("已滑动30秒")
-                            sleep(400)
-                            log("点击返回闲鱼列表")
+                if (flag) {
+                    if (text("滑动浏览得奖励").findOne()) {
+                        let sec = getSec(20);
+                        while (1) {
                             sleep(800)
-                            let breakBtn =
-                                id("root").findOne().child(1).child(2).child(1).child(1)
-                            randomClick(breakBtn)
+                            // 20秒后退出循环 
+                            if (text("任务完成，再逛逛").findOcne()) {
+                                toastLog("已滑动30秒")
+                                sleep(700)
+                                log("点击返回闲鱼列表")
+                                sleep(800)
+                                let breakBtn = idContains("btnback").findOne()
+                                if (breakBtn) {
+                                    randomClick(breakBtn)
+                                    //  返回
+                                    log("返回闲鱼列表")
 
-                            //  返回
-                            log("返回闲鱼列表")
-                            // sleep(800)
-                            // randomClick(text("搜索").findOne())
-                            break;
+                                    if (text("搜索有福利").findOne()) {
+                                        sleep(1000)
+                                        randomClick(breakBtn)
+                                        //  返回
+                                        log("返回闲鱼列表")
+                                        break;
+                                    }
+                                    sleep(200)
+                                }
+                            } else {
+                                // 向下滑动
+                                swipeScreenDown()
+                            }
+
                         }
-                        // 向下滑动
-                        swipeScreenDown()
                     }
                 }
-            }
 
-        } else if (goLookTrade.text == "领取奖励") {
-            goLookTrade.click()
-            sleep(500)
-            toastLog("点击领取咸鱼币")
-            sleep(6000)
-        } else if (goLookTrade.text == "已完成") {
-            sleep(500)
-            toastLog("【搜一搜推荐商品】任务已完成")
-            sleep(3000)
+            } else if (goLookTrade.text() == "领取奖励") {
+                goLookTrade.click()
+                sleep(500)
+                toastLog("点击领取咸鱼币")
+                sleep(6000)
+                break
+            } else if (goLookTrade.text() == "已完成") {
+                sleep(500)
+                toastLog("【搜一搜推荐商品】任务已完成")
+                sleep(3000)
+                break
+            }
         }
     }
 
-    // 点击指定频道好物   =====》 待完善-商品目录Auto遍历不出来
+    // 点击指定频道好物   =====》 待完善-浏览完点击按钮有点问题
     function goAssignTrade() {
         while (1) {
             toastLog("进入-点击指定频道好物")
@@ -261,28 +341,33 @@ function geTEarn() {
                 // 点击去完成按钮
                 let flag = randomClick(goLookTrade);
                 sleep(800)
-                console.log("浏览中...")
+                toastLog("浏览中...")
 
-                let tenSon = textContains("再点击").findOnce();
-
-                if (tenSon) {
-                    randomClick(tenSon)
-                    sleep(800)
-                    for (let i = 0; i < 10; i++) {
-
-                        // 向下滑动
-                        swipeScreenDown()
-                        toastLog(i + "次")
-                        // 点击商品
-                        clickProduct()
-                        i++;
-                        if (i === 10) {
-                            console.log("点击返回闲鱼列表")
+                if (text("全新好物").findOne()) {
+                    while (1) {
+                        toastLog(2324)
+                        sleep(800)
+                        // 20秒后退出循环 
+                        if (textContains("倒计时").findOne()) {
+                            // 向下滑动
+                            swipeScreenDown()
+                        } else {
+                            toastLog("已滑动30秒")
+                            sleep(700)
+                            log("点击返回闲鱼列表")
                             sleep(800)
 
-                            break;
+                            let breakBtn =
+                                textContains("全新好物").findOne().child(0).child(0).click(1).child(0).child(0)
+                            if (breakBtn) {
+                                randomClick(breakBtn)
+                                //  返回
+                                log("返回闲鱼列表")
+
+                                log("返回闲鱼列表")
+                                break;
+                            }
                         }
-                        break;
                     }
                 }
 
@@ -316,10 +401,10 @@ function geTEarn() {
 
             sleep(300)
             if (goLookTrade.text() == "去完成") {
-                console.log("点击去完成");
+                toastLog("点击去完成");
                 // 点击去完成按钮
                 let flag = randomClick(goLookTrade);
-                console.log(flag);
+                toastLog(flag);
 
                 sleep(800)
                 if (flag) {
@@ -327,7 +412,7 @@ function geTEarn() {
                     while (1) {
                         // 20秒后退出循环
                         if (getSec(20) === 0) {
-                            console.log("已滑动30秒")
+                            toastLog("已滑动30秒")
                             sleep(400)
                             log("点击返回闲鱼列表")
                             sleep(800)
@@ -341,7 +426,7 @@ function geTEarn() {
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
                 break
             } else if (goLookTrade.text() == "已完成") {
@@ -365,23 +450,26 @@ function geTEarn() {
             goLookTrade = getFather.child(getTradeVal + 4);
 
             if (goLookTrade.text() == "去完成") {
-                console.log("点击去完成");
+                toastLog("点击去完成");
 
                 // 点击去完成按钮
                 let flag = randomClick(goLookTrade);
                 if (flag) {
-                    sleep(random(3000, 5000))
-                    console.log("已浏览1站到底,点击返回")
-                    log("返回闲鱼列表")
-                    let breakBtn = id("scrollContainer").findOne().child(3).child(2).child(1).child(1)
-                    randomClick(breakBtn)
-                    break
+                    if (text("立即站队拿红包").findOne()) {
+                        sleep(random(3000, 5000))
+                        toastLog("已浏览1站到底,点击返回")
+                        log("返回闲鱼列表")
+                        let breakBtn = id("scrollContainer").findOne().child(2).child(1).child(0).child(0)
+                        randomClick(breakBtn)
+                        break
+                    }
                 }
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
+                console.info("【1站到底】任务已完成")
                 break
             } else if (goLookTrade.text() == "已完成") {
                 sleep(500)
@@ -425,7 +513,7 @@ function geTEarn() {
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
                 break
             } else if (goLookTrade.text() == "已完成") {
@@ -450,18 +538,18 @@ function geTEarn() {
             goLookTrade = getFather.child(getTradeVal + 7);
 
             if (goLookTrade.text() == "去完成") {
-                console.log("点击去完成");
+                toastLog("点击去完成");
 
                 // 点击去完成按钮
                 let flag = randomClick(goLookTrade);
-                console.log(flag);
+                toastLog(flag);
 
                 sleep(900)
                 if (flag) {
                     sleep(3000)
 
                     if (flag) {
-                        console.log("返回闲鱼列表...")
+                        toastLog("返回闲鱼列表...")
                         randomClick(desc("返回").findOne())
                         break
                     }
@@ -469,7 +557,7 @@ function geTEarn() {
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
             } else if (goLookTrade.text() == "已完成") {
                 sleep(500)
@@ -504,7 +592,7 @@ function geTEarn() {
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
             } else if (goLookTrade.text() == "已完成") {
                 sleep(500)
@@ -515,7 +603,7 @@ function geTEarn() {
     }
 
 
-    // 去蚂蚁庄园逛一逛    =====》    待完善
+    // 去蚂蚁庄园逛一逛    =====》   已完成
     function goAntManor() {
         toastLog("进入-去蚂蚁庄园逛一逛")
         while (true) {
@@ -528,41 +616,39 @@ function geTEarn() {
             goLookTrade = getFather.child(getAntManorVal + 7);
 
             if (goLookTrade.text() == "去完成") {
-                console.log("点击去完成");
+                toastLog("点击去完成");
 
                 // 点击去完成按钮
                 let flag = randomClick(goLookTrade);
-                console.log(flag);
-
-                sleep(800)
-                console.log("浏览中...")
+                toastLog(flag);
                 if (flag) {
-                    let sec = getSec(20);
-                    while (1) {
-                        // 20秒后退出循环
-                        if (sec === 0) {
-                            console.log("已滑动30秒")
-                            sleep(400)
-                            log("点击返回闲鱼列表")
-                            sleep(800)
-                            let breakBtn =
-                                id("root").findOne().child(1).child(2).child(1).child(1)
-                            randomClick(breakBtn)
-                            break;
+                    // 是否打开了支付宝
+                    if (currentPackage() === "com.eg.android.AlipayGphone") {
+                        // 支付宝里的弹窗-开始
+                        sleep(3000)
+                        console.log("等待3秒");
+                        console.log("返回闲鱼列表...")
+                        let flag = app.launch("com.taobao.idlefish") // 打开闲鱼
+                        if (flag) {
+                            sleep(3000)
+                            if (text("支付宝").findOne()) {
+                                log("返回闲鱼列表")
+                                sleep(800)
+                                return randomClick(desc("返回").findOne())
+                            }
                         }
-                        // 向下滑动
-                        swipeScreenDown()
                     }
                 }
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
             } else if (goLookTrade.text() == "已完成") {
                 sleep(500)
                 console.info("【蚂蚁庄园逛一逛】任务已完成")
                 sleep(3000)
+                break
             }
         }
     }
@@ -595,11 +681,11 @@ function geTEarn() {
                         let iSeeBtn = text("知道了").findOnce()
                         if (randomClick(iSeeBtn)) {
                             sleep(500)
-                            console.log("点击领取后，延迟3秒")
+                            toastLog("点击领取后，延迟3秒")
                             return sleep(3000)
                         }
                     }
-                    console.log("返回闲鱼列表...")
+                    toastLog("返回闲鱼列表...")
                     sleep(3000)
                     app.launch("com.taobao.idlefish") // 打开闲鱼
                     if (flag) {
@@ -612,7 +698,7 @@ function geTEarn() {
                     }
                     // 支付宝里的弹窗-结束
                 } else {
-                    console.log("返回闲鱼列表...")
+                    toastLog("返回闲鱼列表...")
                     sleep(3000)
                     app.launch("com.taobao.idlefish") // 打开闲鱼
                     if (flag) {
@@ -628,7 +714,7 @@ function geTEarn() {
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
             } else if (goLookTrade.text() == "已完成") {
                 sleep(500)
@@ -641,7 +727,7 @@ function geTEarn() {
 
     // 去蚂蚁森林逛一逛    =====》 待测试
     function goAntWoods() {
-        toastLog("进入-去蚂蚁森林逛一逛")
+        toastLog("进入-蚂蚁森林逛一逛")
         while (true) {
             //  通过祖父组件获取子主间信息
             let getFather = idContains("taskWrap").findOne(3000).child(4).child(0)
@@ -655,14 +741,14 @@ function geTEarn() {
                 // 点击去完成按钮
                 randomClick(goLookTrade);
                 sleep(800)
-                console.log("点击去完成后，延迟6秒")
+                toastLog("点击去完成后")
                 sleep(2000)
                 // 是否打开了支付宝
                 if (currentPackage() === "com.eg.android.AlipayGphone") {
                     // 支付宝里的弹窗-开始
                     sleep(3000)
-                    console.log("等待3秒");
-                    console.log("返回闲鱼列表...")
+                    toastLog("等待3秒");
+                    toastLog("返回闲鱼列表...")
                     let flag = app.launch("com.taobao.idlefish") // 打开闲鱼
                     if (flag) {
                         sleep(3000)
@@ -677,7 +763,7 @@ function geTEarn() {
                 } else if (goLookTrade.text() == "领取奖励") {
                     goLookTrade.click()
                     sleep(500)
-                    console.log("点击领取咸鱼币")
+                    toastLog("点击领取咸鱼币")
                     sleep(6000)
                     break
                 } else if (goLookTrade.text() == "已完成") {
@@ -718,11 +804,11 @@ function geTEarn() {
                         let iSeeBtn = text("知道了").findOnce()
                         if (randomClick(iSeeBtn)) {
                             sleep(500)
-                            console.log("点击领取后，延迟3秒")
+                            toastLog("点击领取后，延迟3秒")
                             return sleep(3000)
                         }
                     }
-                    console.log("返回闲鱼列表...")
+                    toastLog("返回闲鱼列表...")
                     sleep(3000)
                     let kfFlag = app.launch("com.smile.gifmaker") // 打开闲鱼
                     if (kfFlag) {
@@ -735,7 +821,7 @@ function geTEarn() {
                     }
                     // 支付宝里的弹窗-结束
                 } else {
-                    console.log("返回闲鱼列表...")
+                    toastLog("返回闲鱼列表...")
                     sleep(3000)
                     let ksFlag = app.launch("com.taobao.idlefish") // 打开闲鱼
                     if (ksFlag) {
@@ -753,7 +839,7 @@ function geTEarn() {
             } else if (goLookTrade.text() == "领取奖励") {
                 goLookTrade.click()
                 sleep(500)
-                console.log("点击领取咸鱼币")
+                toastLog("点击领取咸鱼币")
                 sleep(6000)
                 break
             } else if (goLookTrade.text() == "已完成") {
@@ -782,12 +868,12 @@ function geTEarn() {
             // 点击去完成按钮
             randomClick(goLookTrade);
             sleep(800)
-            console.log("进入-视频页面，搜索中...")
+            toastLog("进入-视频页面，搜索中...")
 
         } else if (goLookTrade.text() == "领取奖励") {
             goLookTrade.click()
             sleep(500)
-            console.log("点击领取咸鱼币")
+            toastLog("点击领取咸鱼币")
             sleep(6000)
         } else if (goLookTrade.text() == "已完成") {
             sleep(500)
@@ -813,12 +899,12 @@ function geTEarn() {
             // 点击去完成按钮
             randomClick(goLookTrade);
             sleep(800)
-            console.log("进入-视频页面，搜索中...")
+            toastLog("进入-视频页面，搜索中...")
 
         } else if (goLookTrade.text() == "领取奖励") {
             goLookTrade.click()
             sleep(500)
-            console.log("点击领取咸鱼币")
+            toastLog("点击领取咸鱼币")
             sleep(6000)
         } else if (goLookTrade.text() == "已完成") {
             sleep(500)
@@ -844,12 +930,12 @@ function geTEarn() {
             // 点击去完成按钮
             randomClick(goLookTrade);
             sleep(800)
-            console.log("进入-视频页面，搜索中...")
+            toastLog("进入-视频页面，搜索中...")
 
         } else if (goLookTrade.text() == "领取奖励") {
             goLookTrade.click()
             sleep(500)
-            console.log("点击领取咸鱼币")
+            toastLog("点击领取咸鱼币")
             sleep(6000)
         } else if (goLookTrade.text() == "已完成") {
             sleep(500)
@@ -866,7 +952,7 @@ function geTEarn() {
 // 正在领取奖励
 function rewardClick() {
     toastLog("正在领取奖励")
-    let getReward = className("android.view.View").text("领取奖励").findOne();
+    let getReward = text("领取奖励").findOne();
     if (getReward) {
         randomClick(getReward);
         sleep(800)
